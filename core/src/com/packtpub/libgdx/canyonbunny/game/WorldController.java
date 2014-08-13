@@ -26,15 +26,25 @@ public class WorldController extends InputAdapter {
     // Rectangles for collision detection
     private Rectangle r1 = new Rectangle();
     private Rectangle r2 = new Rectangle();
+    private float timeLeftGameOverDelay;
 
     public WorldController() {
         init();
+    }
+
+    public boolean isGameOver() {
+        return lives < 0;
+    }
+
+    public boolean isPlayerInWater() {
+        return level.bunnyHead.position.y < -5;
     }
 
     private void init() {
         Gdx.input.setInputProcessor(this);
         cameraHelper = new CameraHelper();
         lives = Constants.LIVES_START;
+        timeLeftGameOverDelay = 0;
         initLevel();
     }
 
@@ -93,14 +103,14 @@ public class WorldController extends InputAdapter {
                 level.bunnyHead.position.y,
                 level.bunnyHead.bounds.width,
                 level.bunnyHead.bounds.height);
-// Test collision: Bunny Head <-> Rocks
+        // Test collision: Bunny Head <-> Rocks
         for (Rock rock : level.rocks) {
             r2.set(rock.position.x, rock.position.y,
                     rock.bounds.width, rock.bounds.height);
             if (!r1.overlaps(r2)) continue;
             onCollisionBunnyHeadWithRock(rock);
-// IMPORTANT: must do all collisions for valid
-// edge testing on rocks.
+            // IMPORTANT: must do all collisions for valid
+            // edge testing on rocks.
         }
 
         // Test collision: Bunny Head <-> Gold Coins
@@ -141,10 +151,22 @@ public class WorldController extends InputAdapter {
 
     public void update(float deltaTime) {
         handleDebugInput(deltaTime);
-        handleInputGame(deltaTime);
+        if (isGameOver()) {
+            timeLeftGameOverDelay -= deltaTime;
+            if (timeLeftGameOverDelay < 0) init();
+        } else {
+            handleInputGame(deltaTime);
+        }
         level.update(deltaTime);
         testCollisions();
         cameraHelper.update(deltaTime);
+        if (!isGameOver() && isPlayerInWater()) {
+            lives--;
+            if (isGameOver())
+                timeLeftGameOverDelay = Constants.TIME_DELAY_GAME_OVER;
+            else
+                initLevel();
+        }
     }
 
     private void handleDebugInput(float deltaTime) {
