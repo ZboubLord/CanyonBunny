@@ -1,15 +1,13 @@
 package com.packtpub.libgdx.canyonbunny.game;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.math.Rectangle;
 import com.packtpub.libgdx.canyonbunny.game.objects.BunnyHead;
 import com.packtpub.libgdx.canyonbunny.game.objects.Feather;
 import com.packtpub.libgdx.canyonbunny.game.objects.GoldCoin;
 import com.packtpub.libgdx.canyonbunny.game.objects.Rock;
+import com.packtpub.libgdx.canyonbunny.screens.MenuScreen;
 import com.packtpub.libgdx.canyonbunny.util.CameraHelper;
 import com.packtpub.libgdx.canyonbunny.util.Constants;
 
@@ -28,8 +26,16 @@ public class WorldController extends InputAdapter {
     private Rectangle r2 = new Rectangle();
     private float timeLeftGameOverDelay;
 
-    public WorldController() {
+    private Game game;
+
+    public WorldController(Game game) {
+        this.game = game;
         init();
+    }
+
+    private void backToMenu() {
+// switch to menu screen
+        game.setScreen(new MenuScreen(game));
     }
 
     public boolean isGameOver() {
@@ -153,7 +159,7 @@ public class WorldController extends InputAdapter {
         handleDebugInput(deltaTime);
         if (isGameOver()) {
             timeLeftGameOverDelay -= deltaTime;
-            if (timeLeftGameOverDelay < 0) init();
+            if (timeLeftGameOverDelay < 0) backToMenu();
         } else {
             handleInputGame(deltaTime);
         }
@@ -219,6 +225,8 @@ public class WorldController extends InputAdapter {
                     ? null : level.bunnyHead);
             Gdx.app.debug(TAG, "Camera follow enabled: "
                     + cameraHelper.hasTarget());
+        } else if (keycode == Input.Keys.ESCAPE || keycode == Input.Keys.BACK) {
+            backToMenu();
         }
         return false;
     }

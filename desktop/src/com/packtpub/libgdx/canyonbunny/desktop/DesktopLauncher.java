@@ -19,6 +19,9 @@ public class DesktopLauncher {
             TexturePacker.processIfModified(settings, "../../desktop/assets-raw/images",
                     "images",
                     "canyonbunny.pack");
+            TexturePacker.processIfModified(settings, "../../desktop/assets-raw/images-ui",
+                    "images",
+                    "canyonbunny-ui.pack");
         }
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
         config.width = 800;
